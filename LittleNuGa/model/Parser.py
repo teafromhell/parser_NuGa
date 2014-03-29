@@ -1,10 +1,11 @@
 #coding: utf-8
 import re
-from types import NoneType
+#from types import NoneType
 from BeautifulSoup import BeautifulSoup
 import requests
 
 __author__ = 'tea'
+
 
 class Parser(object):
     def load_and_parse(self):
@@ -12,7 +13,7 @@ class Parser(object):
         self.parse()
 
     def load(self):
-        return requests.get(url = 'http://fl.ru').text
+        return requests.get(url='http://fl.ru').text
 
     def parse(self, x):
 
@@ -22,29 +23,51 @@ class Parser(object):
             title_tag = tag.find('h2', {'class': re.compile(r'.*\bb-post__title\b.*')})
             name = title_tag.find('a').contents[0]
             ref = title_tag.find('a')['href']
-            print name
+            #Proposal(name, descr, price, str_stuff, ref).name = name
             print ref
-
-
-            i = 0
-            price = ''
             str_price = tag.find('script').string
-            while i < len(str_price):
-                if str_price[i] == '>':
-                    i += 1
-                    while str_price[i] != '<':
-                        price = price + str_price[i]
+            self.get_price(str_price)
+            str_descr = str_price.findNext('script').string
+            self.get_descr(str_descr)
+            str_stuff = str_descr.findNext('script').string
+            self.get_stuff(str_stuff)
+
+    def get_descr(self, str_descr):
+        i = 0
+        count = 0
+        descr = ''
+
+        while i < len(str_descr):
+            if str_descr[i] == '>':
+                i += 1
+                count += 1
+                if count == 2:
+                    while str_descr[i] != '<':
+                        descr = descr + str_descr[i]
                         i += 1
-                    print price.replace('&nbsp;', '')
+                    print 'descr = ', descr
                     break
-                else:
+            else:
+                i += 1
+        return descr
+
+    def get_price(self, str_price):
+        i = 0
+        price = ''
+
+        while i < len(str_price):
+            if str_price[i] == '>':
+                i += 1
+                while str_price[i] != '<':
+                    price = price + str_price[i]
                     i += 1
+                print 'price = ',price.replace('&nbsp;', '')
+                break
+            else:
+                i += 1
+        return price
 
-
-        #ex = resp_soup.find(id='project-item1875069')
-        #print ex
-
-
+    def get_stuff(self, str_stuff):
         i = 0
         stuff = ''
         while i < len(str_stuff):
@@ -58,4 +81,3 @@ class Parser(object):
 
             else:
                 i += 1
-        print str_stuff
