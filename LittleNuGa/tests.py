@@ -7,4 +7,8 @@ from LittleNuGa.model.Parser import Parser
 
 class Tests(unittest.TestCase):
     def test_parse(self):
-        Parser().load_and_parse()
+        Parser().parse(self.load_index())
+
+    def load_index(self):
+        file = open('LittleNuGa/fl.html','r')
+        return file.read()
