@@ -3,14 +3,14 @@ import re
 #from types import NoneType
 from BeautifulSoup import BeautifulSoup
 import requests
+from LittleNuGa.model.proposal import Proposal
 
 __author__ = 'tea'
 
 
 class Parser(object):
     def load_and_parse(self):
-        self.load()
-        self.parse()
+        self.parse(self.load())
 
     def load(self):
         return requests.get(url='http://fl.ru').text
@@ -20,17 +20,18 @@ class Parser(object):
         resp_soup = BeautifulSoup(x)
 
         for tag in resp_soup.findAll('div', {'class': re.compile(r'.*\bb-post\b.*')}):
+            print '---------'
             title_tag = tag.find('h2', {'class': re.compile(r'.*\bb-post__title\b.*')})
             name = title_tag.find('a').contents[0]
             ref = title_tag.find('a')['href']
-            #Proposal(name, descr, price, str_stuff, ref).name = name
-            print ref
             str_price = tag.find('script').string
-            self.get_price(str_price)
+            price = self.get_price(str_price)
             str_descr = str_price.findNext('script').string
-            self.get_descr(str_descr)
+            descr = self.get_descr(str_descr)
             str_stuff = str_descr.findNext('script').string
-            self.get_stuff(str_stuff)
+            stuff = self.get_stuff(str_stuff)
+            proposal_example = Proposal(name, descr, price, stuff, ref)
+            print proposal_example.to_json()
 
     def get_descr(self, str_descr):
         i = 0
@@ -45,7 +46,7 @@ class Parser(object):
                     while str_descr[i] != '<':
                         descr = descr + str_descr[i]
                         i += 1
-                    print 'descr = ', descr
+                    return descr
                     break
             else:
                 i += 1
@@ -61,7 +62,7 @@ class Parser(object):
                 while str_price[i] != '<':
                     price = price + str_price[i]
                     i += 1
-                print 'price = ',price.replace('&nbsp;', '')
+                return price.replace('&nbsp;', '')
                 break
             else:
                 i += 1
@@ -76,7 +77,7 @@ class Parser(object):
                     stuff = stuff + str_stuff[i]
                     i += 1
                 if stuff != '11':
-                    print stuff
+                    return stuff
                 stuff = ''
 
             else:

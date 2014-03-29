@@ -12,9 +12,10 @@ class Proposal:
     def __init__(self, name, descr, price, stuff, ref):
         self.descr = descr
         self.price = price
-        self.stiff = stuff
+        self.stuff = stuff
         self.ref = ref
         self.name = name
-    
+
     def to_json(self):
-        json.dumps(self)
+        return json.dumps(self, default=lambda o: o.__dict__)
+
