@@ -31,7 +31,7 @@ class Parser(object):
             str_stuff = str_descr.findNext('script').string
             stuff = self.get_stuff(str_stuff)
             proposal_example = Proposal(name, descr, price, stuff, ref)
-            print proposal_example.to_json()
+            print proposal_example.__dict__
 
     def get_descr(self, str_descr):
         i = 0
